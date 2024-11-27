@@ -1,0 +1,35 @@
+# API_Key 입력
+# 넥슨 오픈 API 키
+headers = {
+  "x-nxopen-api-key": "API_KEY"
+}
+# 함수 정리
+- 이 함수는 캐릭터 랭킹 DB에서 캐릭터의 닉네임을 가져온다.
+def get_name(headers, today, i, weight):
+    params = {"date": today, "page": i, "world_type": 0}
+    response = requests.get("https://open.api.nexon.com/maplestory/v1/ranking/overall", headers=headers, params=params)
+    if "ranking" not in response.json():
+        raise Exception("No more data to fetch.")
+    nameList = [response.json()["ranking"][index]["character_name"] for index in range(min(weight, len(response.json()["ranking"])))]
+    return nameList
+- 이 함수는 캐릭터의 OCID를 가져온다.
+def get_ocid(headers, name):    
+    params = {"character_name":name}
+    response = requests.get("https://open.api.nexon.com/maplestory/v1/id", headers = headers, params = params)
+    if "error" in response.json():
+        return -1
+    else:
+        ocid = response.json()["ocid"]
+        return ocid
+- 이 함수는 캐릭터의 정보를 가져온다.
+def get_character_info(headers, ocid, date):
+    params = {"date":"2024-01-02"}
+    response = requests.get("https://open.api.nexon.com/maplestory/v1/character/basic?ocid="+ocid, headers = headers, params = params)
+    return response.json()
+- 이 함수는 캐릭터의 유니온 정보를 가져온다.
+def get_union_info(headers, ocid):
+    params = {"date":"2024-01-02"}
+    response = requests.get("https://open.api.nexon.com/maplestory/v1/character/union?ocid="+ocid, headers = headers, params = params)
+    return response.json()
+
+
